@@ -119,6 +119,16 @@ namespace me.cg360.spookums.utility
             }
             throw new Exception("NetworkBuffer Underflow");
         }
+        
+        public String GetUTF8String() {
+            ushort len = GetUnsignedShort();
+            return GetUnboundUTF8String(len);
+        }
+        
+        public String GetSmallUTF8String() {
+            byte len = Get();
+            return GetUnboundUTF8String(len);
+        }
 
         public String GetUnboundUTF8String(int byteCount) {
             if(CanReadBytesAhead(byteCount)) {
@@ -182,7 +192,7 @@ namespace me.cg360.spookums.utility
         }
 
         /** @return the amount of bytes written. */
-        public int PutSmallUTF8String(String str) {
+        public ushort PutSmallUTF8String(String str) {
             if(str.Length == 0) return 0;
 
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
@@ -192,7 +202,7 @@ namespace me.cg360.spookums.utility
             if(CanReadBytesAhead(1 + strBytes.Length)) {
                 if(PutUnsignedByte((byte) strBytes.Length)) {
                     WriteBytes(strBytes);
-                    return 1 + strBytes.Length;
+                    return (ushort) (1 + strBytes.Length);
                 }
             }
             return 0;
