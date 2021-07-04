@@ -37,7 +37,7 @@ namespace me.cg360.spookums.core.network.netimpl.socket
         {
             while (IsRunning())
             {
-                //CheckForInboundPackets();
+                CheckForInboundPackets();
             }
         }
 
@@ -64,8 +64,8 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                     {
                         client.SendBufferSize = VanillaProtocol.MAX_BUFFER_SIZE;
                         client.ReceiveBufferSize = VanillaProtocol.MAX_BUFFER_SIZE;
-                        client.ReceiveTimeout = 20000;
-                        client.SendTimeout = 20000;
+                        client.ReceiveTimeout = 30000;
+                        client.SendTimeout = 30000;
                         client.Connect(endpoint);
                         ClientSocket = client;
                         IsSocketRunning = true;
@@ -95,12 +95,12 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                 {
                     lock (ClientSocket)
                     {
-                        byte[] sizeBytes = new byte[2];
-                        int sizeByteCount = ClientSocket.Receive(sizeBytes, sizeBytes.Length, 0);
-                        NetworkBuffer sizeBuf = NetworkBuffer.Wrap(sizeBytes);
-                        
-                        if (sizeByteCount == 2)
+                        if (ClientSocket.Available >= 2)
                         {
+                            byte[] sizeBytes = new byte[2];
+                            int sizeByteCount = ClientSocket.Receive(sizeBytes, sizeBytes.Length, 0);
+                            NetworkBuffer sizeBuf = NetworkBuffer.Wrap(sizeBytes);
+                            
                             ushort packetSize = sizeBuf.GetUnsignedShort();
                             byte[] bodyBytes = new byte[packetSize];
                             int bodyByteCount = ClientSocket.Receive(bodyBytes, bodyBytes.Length, 0);
@@ -109,14 +109,13 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                             {
                                 NetworkBuffer bodyBuffer = NetworkBuffer.Wrap(bodyBytes);
                                 byte id = bodyBuffer.Get();
-                                
-                                Type packetType;
 
-                                if (PacketRegistry.Get().GetPacketType(id, out packetType))
+                                if (PacketRegistry.Get().GetPacketType(id, out Type packetType))
                                 {
                                     NetworkPacket packet = (NetworkPacket) Activator.CreateInstance(packetType);
 
-                                    NetworkBuffer packetBuffer = NetworkBuffer.Wrap(new byte[sizeByteCount + bodyByteCount]);
+                                    NetworkBuffer packetBuffer =
+                                        NetworkBuffer.Wrap(new byte[sizeByteCount + bodyByteCount]);
                                     packetBuffer.Put(sizeBytes);
                                     packetBuffer.Put(bodyBytes);
 
@@ -125,7 +124,9 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                                     PacketEvent.Recieved pEvent = new PacketEvent.Recieved(packet);
                                     EventManager.Get().Call(pEvent);
 
-                                    return pEvent.IsCancelled() ? new List<NetworkPacket>() : new List<NetworkPacket>(new NetworkPacket[] { packet });
+                                    return pEvent.IsCancelled()
+                                        ? new List<NetworkPacket>()
+                                        : new List<NetworkPacket>(new NetworkPacket[] {packet});
                                 }
                             }
                         }
@@ -154,17 +155,17 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                     pEvent = new PacketEvent.Sent(packet);
                     EventManager.Get().Call(pEvent);
                 }
-
-                data.Reset();
-                byte[] packetData = new byte[length];
                 
-                for(int i = 0; i < length; i++)
-                {
-                    packetData[i] = data.Get();
-                }
-
+                data.Reset();
+                
                 if (!pEvent.IsCancelled())
                 {
+                    byte[] sizeData = new byte[2];
+                    byte[] packetData = new byte[length - 2];
+                    data.Get(sizeData);
+                    data.Get(packetData);
+                    
+                    ClientSocket.Send(sizeData, sizeData.Length, 0);
                     ClientSocket.Send(packetData, packetData.Length, 0);
                 }
             }

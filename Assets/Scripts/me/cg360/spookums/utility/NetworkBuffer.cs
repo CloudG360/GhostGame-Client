@@ -7,7 +7,7 @@ namespace me.cg360.spookums.utility
     public class NetworkBuffer
     {
         
-        public byte[] Buffer { get; }
+        public byte[] Buffer { get; private set; }
         public int PointerIndex { get; private set; }
 
 

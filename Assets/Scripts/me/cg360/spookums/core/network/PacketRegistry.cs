@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using me.cg360.spookums.core.network.packet;
+using UnityEngine;
 
 namespace net.cg360.spookums.core.network {
 
@@ -8,17 +9,17 @@ namespace net.cg360.spookums.core.network {
     // found here are processed when recieved by the server.
     public class PacketRegistry {
 
-        private static PacketRegistry primaryInstance = null;
+        private static PacketRegistry _primaryInstance = null;
 
-        protected Dictionary<byte, Type> packetTypes;
+        protected Dictionary<byte, Type> PacketTypes;
 
         public PacketRegistry() {
-            this.packetTypes = new Dictionary<byte, Type>();
+            PacketTypes = new Dictionary<byte, Type>();
         }
 
         public bool SetAsPrimaryInstance() {
-            if (primaryInstance == null) {
-                primaryInstance = this;
+            if (_primaryInstance == null) {
+                _primaryInstance = this;
                 return true;
             }
             return false;
@@ -28,23 +29,30 @@ namespace net.cg360.spookums.core.network {
 
         public bool GetPacketType(byte id, out Type packetType)
         {
-            return this.packetTypes.TryGetValue(id, out packetType);
+            if (PacketTypes.ContainsKey(id))
+            {
+                packetType = PacketTypes[id];
+                return packetType != null;
+            }
+
+            packetType = null;
+            return false;
         }
 
         // Chaining
-        public PacketRegistry r(byte id, Type type) {
-            registerPacketType(id, type);
+        public PacketRegistry R(byte id, Type type) {
+            RegisterPacketType(id, type);
             return this;
         }
 
-        public bool registerPacketType(byte id, Type type) {
+        public bool RegisterPacketType(byte id, Type type) {
             if (type == null) return false;
-            if (type.IsAssignableFrom(typeof(NetworkPacket)))
+            if (typeof(NetworkPacket).IsAssignableFrom(type))
             {
 
-                if (!this.packetTypes.ContainsKey(id))
+                if (!PacketTypes.ContainsKey(id))
                 {
-                    this.packetTypes.Add(id, type);
+                    PacketTypes.Add(id, type);
                     return true;
                 }
             }
@@ -55,7 +63,7 @@ namespace net.cg360.spookums.core.network {
 
 
         public static PacketRegistry Get() {
-            return primaryInstance;
+            return _primaryInstance;
         }
     }
 }

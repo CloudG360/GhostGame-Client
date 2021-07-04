@@ -16,7 +16,7 @@ namespace me.cg360.spookums.core.network.packet.generic {
 
         protected override ushort EncodeBody()
         {
-            string selectedText = "Debug text here";
+            string selectedText = Text ?? " ";
 
             Body.Reset();
             int size = Body.PutUnboundUTF8String(selectedText);

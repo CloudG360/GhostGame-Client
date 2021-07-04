@@ -4,12 +4,19 @@ using me.cg360.spookums.core.eventsys.type.network;
 using me.cg360.spookums.core.network.netimpl.socket;
 using me.cg360.spookums.core.network.packet.generic;
 using System.Threading;
+using me.cg360.spookums.core.network;
+using net.cg360.spookums.core.network;
 using UnityEngine;
 
 namespace me.cg360.spookums
 {
     public class Main : MonoBehaviour
     {
+        private NISocket _currentSocket; //TODO: Network Manager
+        private int _responseCounter = 0;
+
+        private PacketRegistry _packetRegistry;
+        
         private void Start()
         {
             EventManager eventManager = new EventManager();
@@ -18,29 +25,17 @@ namespace me.cg360.spookums
             Listener newListen = new Listener(this);
             eventManager.AddListener(newListen);
 
-            NISocket socket = new NISocket();
-            bool sendPackets = true;
+            _packetRegistry = VanillaProtocol.CreateRegistry();
+            _packetRegistry.SetAsPrimaryInstance();
+
+            _currentSocket = new NISocket();
 
             Thread serverThread = new Thread(() => {
-
                 
-                socket.OpenServerConnection("localhost", 22057);
+                _currentSocket.OpenServerConnection("localhost", 22057);
                 Debug.Log("Stopped Server");
-                sendPackets = false;
-            });
-
-            Thread packetSentThread = new Thread(() =>
-            {
-                int i = 0;
-                while(sendPackets)
-                {
-                    Thread.Sleep(5000);
-                    socket.SendDataPacket(new PacketInOutChatMessage($"Test Message #{i}"), false);
-                    i++;
-                }
             });
             
-            packetSentThread.Start();
             serverThread.Start();
         }
         
@@ -54,6 +49,8 @@ namespace me.cg360.spookums
         public void onPacketRecieve(PacketEvent.Recieved e)
         {
             Debug.Log("IN >> " + e.Packet.ToHeaderString());
+            _currentSocket.SendDataPacket(new PacketInOutChatMessage($"Response #{_responseCounter}"), false);
+            _responseCounter++;
         }
     }
 }

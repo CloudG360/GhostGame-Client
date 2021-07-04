@@ -6,7 +6,7 @@ namespace me.cg360.spookums.core.network.packet {
 
     public abstract class NetworkPacket {
 
-        public NetworkBuffer Body { get; }
+        public NetworkBuffer Body { get; private set; }
         public byte PacketID { get; private set; }
         protected ushort BodySize { get; private set; }
 
@@ -43,8 +43,10 @@ namespace me.cg360.spookums.core.network.packet {
             fullPacket.Reset(); // Ensure buffers are ready for reading.
             Body.Reset();
 
-            BodySize = fullPacket.GetUnsignedShort();
+            BodySize = (ushort) (fullPacket.GetUnsignedShort() - 1);
             PacketID = fullPacket.Get();
+            
+            Body = NetworkBuffer.Wrap(new byte[VanillaProtocol.MAX_PACKET_SIZE - 3]);
 
             for (int i = 0; i < BodySize - 1; i++) {
                 Body.Put(fullPacket.Get()); // Copy bytes
@@ -58,7 +60,7 @@ namespace me.cg360.spookums.core.network.packet {
         public string ToHeaderString() {
             return "(" +
                     "ID=0x" + BitConverter.ToString(new []{Convert.ToByte(PacketID)} ) +
-                    "| size=" + (BodySize + 1) +
+                    "| size=" + (BodySize) +
                     ")";
         }
     }

@@ -1,5 +1,6 @@
 using me.cg360.spookums.core.network.packet.generic;
 using net.cg360.spookums.core.network;
+using UnityEngine;
 
 namespace me.cg360.spookums.core.network
 {
@@ -70,36 +71,36 @@ namespace me.cg360.spookums.core.network
         public const byte PACKET_GAME_DETAIL = 0x35; // out - Sends details of the game to the client
 
 
-        public static void applyToRegistry(PacketRegistry packetRegistry)
+        public static PacketRegistry CreateRegistry()
         {
-            packetRegistry
-                    .r(PACKET_PROTOCOL_INVALID_PACKET, null)
-                    .r(PACKET_PROTOCOL_CHECK, null)
-                    .r(PACKET_PROTOCOL_SUCCESS, null)
-                    .r(PACKET_PROTOCOL_ERROR, null)
-                    .r(PACKET_PROTOCOL_BATCH, null)
-
-                    .r(PACKET_SERVER_PING_REQUEST, null)
-                    .r(PACKET_SERVER_DETAIL, null)
-                    .r(PACKET_CLIENT_DETAIL, null)
-                    .r(PACKET_SERVER_NOTICE, null)
-                    .r(PACKET_DISCONNECT_REASON, typeof(PacketInOutDisconnect))
-
-                    .r(PACKET_RESPONSE_WARNING, null)
-                    .r(PACKET_RESPONSE_SUCCESS, null)
-                    .r(PACKET_RESPONSE_ERROR, null)
-                    .r(PACKET_CHAT_MESSAGE, typeof(PacketInOutChatMessage))
-
-                    .r(PACKET_LOGIN, null)
-                    .r(PACKET_CREATE_ACCOUNT, null)
-                    .r(PACKET_LOGIN_RESPONSE, null)
-
-                    .r(PACKET_GAME_JOIN_REQUEST, null)
-                    .r(PACKET_GAME_CREATE_REQUEST, null)
-                    .r(PACKET_GAME_RESPONSE, null)
-                    .r(PACKET_FETCH_GAME_LIST, null)
-                    .r(PACKET_REQUEST_GAME_DETAIL, null)
-                    .r(PACKET_GAME_DETAIL, null);
+            return new PacketRegistry()
+                    .R(PACKET_PROTOCOL_INVALID_PACKET, null)
+                    .R(PACKET_PROTOCOL_CHECK, null)
+                    .R(PACKET_PROTOCOL_SUCCESS, null)
+                    .R(PACKET_PROTOCOL_ERROR, null)
+                    .R(PACKET_PROTOCOL_BATCH, null)
+                     
+                    .R(PACKET_SERVER_PING_REQUEST, null)
+                    .R(PACKET_SERVER_DETAIL, null)
+                    .R(PACKET_CLIENT_DETAIL, null)
+                    .R(PACKET_SERVER_NOTICE, null)
+                    .R(PACKET_DISCONNECT_REASON, typeof(PacketInOutDisconnect))
+                     
+                    .R(PACKET_RESPONSE_WARNING, null)
+                    .R(PACKET_RESPONSE_SUCCESS, null)
+                    .R(PACKET_RESPONSE_ERROR, null)
+                    .R(PACKET_CHAT_MESSAGE, typeof(PacketInOutChatMessage))
+                     
+                    .R(PACKET_LOGIN, null)
+                    .R(PACKET_CREATE_ACCOUNT, null)
+                    .R(PACKET_LOGIN_RESPONSE, null)
+                            
+                    .R(PACKET_GAME_JOIN_REQUEST, null)
+                    .R(PACKET_GAME_CREATE_REQUEST, null)
+                    .R(PACKET_GAME_RESPONSE, null)
+                    .R(PACKET_FETCH_GAME_LIST, null)
+                    .R(PACKET_REQUEST_GAME_DETAIL, null)
+                    .R(PACKET_GAME_DETAIL, null);
         }
 
     }
