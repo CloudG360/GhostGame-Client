@@ -130,7 +130,9 @@ namespace me.cg360.spookums.utility
             return GetUnboundUTF8String(len);
         }
 
-        public String GetUnboundUTF8String(int byteCount) {
+        public String GetUnboundUTF8String(int byteCount)
+        {
+            if (byteCount == 0) return "";
             if(CanReadBytesAhead(byteCount)) {
                byte[] strBytes = FetchRawBytes(byteCount);
                return Encoding.UTF8.GetString(strBytes);

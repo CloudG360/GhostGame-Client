@@ -1,4 +1,5 @@
 using me.cg360.spookums.core.network.packet.generic;
+using me.cg360.spookums.core.network.packet.info;
 using net.cg360.spookums.core.network;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ namespace me.cg360.spookums.core.network
          *
          */
 
-        public const short PROTOCOL_ID = 1;
+        public const ushort PROTOCOL_ID = 1;
 
         public const int MAX_BUFFER_SIZE = 32768;
         public const int MAX_PACKET_SIZE = 4096;
@@ -75,15 +76,15 @@ namespace me.cg360.spookums.core.network
         {
             return new PacketRegistry()
                     .R(PACKET_PROTOCOL_INVALID_PACKET, null)
-                    .R(PACKET_PROTOCOL_CHECK, null)
-                    .R(PACKET_PROTOCOL_SUCCESS, null)
-                    .R(PACKET_PROTOCOL_ERROR, null)
+                    .R(PACKET_PROTOCOL_CHECK, typeof(PacketOutProtocolCheck))
+                    .R(PACKET_PROTOCOL_SUCCESS, typeof(PacketInProtocolSuccess))
+                    .R(PACKET_PROTOCOL_ERROR, typeof(PacketInProtocolError))
                     .R(PACKET_PROTOCOL_BATCH, null)
                      
-                    .R(PACKET_SERVER_PING_REQUEST, null)
-                    .R(PACKET_SERVER_DETAIL, null)
+                    .R(PACKET_SERVER_PING_REQUEST, typeof(PacketOutServerPingRequest))
+                    .R(PACKET_SERVER_DETAIL, typeof(PacketInServerDetail))
                     .R(PACKET_CLIENT_DETAIL, null)
-                    .R(PACKET_SERVER_NOTICE, null)
+                    .R(PACKET_SERVER_NOTICE, typeof(PacketInServerNotice))
                     .R(PACKET_DISCONNECT_REASON, typeof(PacketInOutDisconnect))
                      
                     .R(PACKET_RESPONSE_WARNING, null)

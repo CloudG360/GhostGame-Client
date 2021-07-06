@@ -29,7 +29,7 @@ namespace me.cg360.spookums.core.network.packet.generic
 
         protected override ushort EncodeBody()
         {
-            string selectedText = Text is null ? DEFAULT_OUTBOUND_TEXT : Text;
+            string selectedText = Text ?? DEFAULT_OUTBOUND_TEXT;
 
             Body.Reset();
             int strSize = Body.PutUnboundUTF8String(selectedText);
