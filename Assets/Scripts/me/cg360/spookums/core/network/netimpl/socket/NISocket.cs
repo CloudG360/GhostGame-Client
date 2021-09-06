@@ -41,7 +41,7 @@ namespace me.cg360.spookums.core.network.netimpl.socket
             }
         }
 
-        public override void OpenServerConnection(string hostname, int port)
+        public override string OpenServerConnection(string hostname, int port)
         {
             if (!IsRunning())
             {
@@ -71,11 +71,13 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                         IsSocketRunning = true;
 
                         StartPacketListenerThread();
+                        return null;
                     }
                     catch (Exception err)
                     {
                         Debug.Log("Error connecting:");
                         Debug.LogException(err);
+                        return "- Error -\n" + err.ToString();
                     }
 
                 }
@@ -83,8 +85,11 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                 {
                     Debug.Log("Error Resolving:");
                     Debug.LogException(err);
+                    return "- Error -\n" + err.ToString();
                 }
             }
+
+            return "An unknown error occured";
         }
 
         public override List<NetworkPacket> CheckForInboundPackets()

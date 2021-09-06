@@ -36,15 +36,9 @@ namespace me.cg360.spookums.core.eventsys
          *
          * Cannot be changed once initially called.
          */
-        public bool SetAsPrimaryManager()
+        public void SetAsPrimaryManager()
         {
-            if (_primaryManager == null)
-            {
-                _primaryManager = this;
-                return true;
-            }
-
-            return false;
+            _primaryManager = this;
         }
 
         public void Call(BaseEvent e)

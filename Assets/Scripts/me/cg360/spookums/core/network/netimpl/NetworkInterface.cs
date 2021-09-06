@@ -10,7 +10,7 @@ namespace me.cg360.spookums.core.network.netimpl {
      */
     public abstract class NetworkInterface {
     
-        public abstract void OpenServerConnection(string hostname, int port);
+        public abstract string OpenServerConnection(string hostname, int port);
 
         public abstract List<NetworkPacket> CheckForInboundPackets();
     

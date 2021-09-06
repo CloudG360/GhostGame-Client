@@ -17,12 +17,9 @@ namespace net.cg360.spookums.core.network {
             PacketTypes = new Dictionary<byte, Type>();
         }
 
-        public bool SetAsPrimaryInstance() {
-            if (_primaryInstance == null) {
-                _primaryInstance = this;
-                return true;
-            }
-            return false;
+        public void SetAsPrimaryInstance() 
+        {
+            _primaryInstance = this;
         }
 
 
