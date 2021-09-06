@@ -22,9 +22,8 @@ namespace me.cg360.spookums.utility
             _watcherThread = new Thread(() =>
             {
                 _operating = true;
-                while(Application.isPlaying) { }
-
-                _operating = false;
+                while(_operating) { }
+                
                 foreach (Thread thread in _threadList)
                 {
                     try
@@ -57,7 +56,7 @@ namespace me.cg360.spookums.utility
         {
             if(_operating) Thread.Start();
         }
-        
+
         public void Join()
         {
             if(_operating) Thread.Join();
@@ -71,6 +70,11 @@ namespace me.cg360.spookums.utility
         public static void StartThreadChecking()
         {
             _watcherThread.Start();
+        }
+        
+        public static void StopThreadChecking()
+        {
+            _operating = false;
         }
         
     }

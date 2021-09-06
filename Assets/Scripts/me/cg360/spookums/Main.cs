@@ -33,5 +33,10 @@ namespace me.cg360.spookums
         {
             DontDestroyOnLoad(this.gameObject);
         }
+
+        private void OnDisable()
+        {
+            GameThread.StopThreadChecking();
+        }
     }
 }
