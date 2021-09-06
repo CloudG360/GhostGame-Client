@@ -17,7 +17,7 @@ namespace me.cg360.spookums.core.network.netimpl.socket
     {
 
         protected Socket ClientSocket;
-        protected Thread ListenerThread;
+        protected GameThread ListenerThread;
         protected bool IsSocketRunning;
 
         public NISocket()
@@ -28,7 +28,7 @@ namespace me.cg360.spookums.core.network.netimpl.socket
 
         protected void StartPacketListenerThread()
         {
-            ListenerThread = new Thread(PacketListenerProcess);
+            ListenerThread = new GameThread(PacketListenerProcess);
             ListenerThread.Start();
             ListenerThread.Join();
         }

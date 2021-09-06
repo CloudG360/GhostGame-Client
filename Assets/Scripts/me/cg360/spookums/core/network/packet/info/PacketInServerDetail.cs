@@ -49,11 +49,11 @@ namespace me.cg360.spookums.core.network.packet.info
                         break;
                 }
             }
-            catch (Exception err)
+            catch
             {
                 ServerName = "Invalid Server";
                 ServerRegion = "?";
-                ServerDescription = "Server sent an empty/malformed response. Looks broke to me chief.";
+                ServerDescription = "Server sent an empty/malformed response. Looks broken to me chief.";
             }
         }
     }
