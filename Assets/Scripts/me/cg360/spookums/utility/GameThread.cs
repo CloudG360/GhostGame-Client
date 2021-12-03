@@ -21,9 +21,11 @@ namespace me.cg360.spookums.utility
             _threadList = new List<Thread>();
             _watcherThread = new Thread(() =>
             {
+                Debug.Log("Started watcher thread!");
                 _operating = true;
                 while(_operating) { }
-                
+
+                Debug.Log("Stopped operation of threads");
                 foreach (Thread thread in _threadList)
                 {
                     try

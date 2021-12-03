@@ -1,7 +1,8 @@
 using me.cg360.spookums.core.network.packet.generic;
 using me.cg360.spookums.core.network.packet.info;
-using net.cg360.spookums.core.network;
+using me.cg360.spookums.core.network;
 using UnityEngine;
+using me.cg360.spookums.core.network.packet.auth;
 
 namespace me.cg360.spookums.core.network
 {
@@ -42,8 +43,8 @@ namespace me.cg360.spookums.core.network
 
         // Information Packets
         public const byte PACKET_SERVER_PING_REQUEST = 0x10; // in - responded to with PACKET_SERVER_DETAIL | Accepted by the server even if a protocol check hasn't occurred.
-        public const byte PACKET_SERVER_DETAIL = 0x11; // out - JSON format - Like a ping, should only be extended. Includes stuff like name + logo if present.
-        public const byte PACKET_CLIENT_DETAIL = 0x12; // in - JSON format - Stores client OS, version, and other non-essential details. Could be use to split platforms
+        public const byte PACKET_SERVER_DETAIL = 0x11; // out - Like a ping, should only be extended. Includes stuff like name + logo if present.
+        public const byte PACKET_CLIENT_DETAIL = 0x12; // in - Stores client OS, version, and other non-essential details. Could be use to split platforms
         public const byte PACKET_SERVER_NOTICE = 0x13; // out - Used to display generic information to a user
         public const byte PACKET_DISCONNECT_REASON = 0x14; // in/out - Sent by the server/client that's closing the connection.
 
@@ -51,23 +52,29 @@ namespace me.cg360.spookums.core.network
         // Response/Generic Packets
         public const byte PACKET_RESPONSE_WARNING = 0x15; // out - Used to respond to client packets with a warn status
         public const byte PACKET_RESPONSE_SUCCESS = 0x16; // out - Used to respond to client packets with a info status
-        public const byte PACKET_RESPONSE_ERROR = 0x17; // out - Used to respond to client packets with a error status
-
-        public const byte PACKET_CHAT_MESSAGE = 0x18; // in/out - messages in may get some further formatting.
+        public const byte PACKET_RESPONSE_ERROR = 0x17; // in/out - Used to respond to client or server packets with a error status.
+               
+        public const byte PACKET_CHAT_MESSAGE = 0x18; // in/out - A chat message!
 
 
         // Account Management Packets
-        public const byte PACKET_LOGIN = 0x20; // in - User attempts to login to their account
-        public const byte PACKET_CREATE_ACCOUNT = 0x22; // in - User attempts to create an account (Returns a login response packet)
+        public const byte PACKET_LOGIN = 0x20; // in - User attempts to login to their account with either a token or login details.
+        public const byte PACKET_UPDATE_ACCOUNT = 0x22; // in - User attempts to create/update an account (Returns a new login in a login response packet)
         public const byte PACKET_LOGIN_RESPONSE = 0x24; // out - Could split into token (success) packet + error (failure) packet.
 
 
         // Session Stuff
-        public const byte PACKET_GAME_JOIN_REQUEST = 0x30; // in - Client's intent to join a game. Will return a PACKET_SESSION_RESPONSE type packet
-        public const byte PACKET_GAME_CREATE_REQUEST = 0x31; // in - Client's intent to create their own game with it's settings included.
-        public const byte PACKET_GAME_RESPONSE = 0x32; // out - Returns a specific game token or an error message
+        public const byte PACKET_GAME_JOIN_REQUEST = 0x30; // in - Client's intent to join a *specific* game. Will return a PACKET_GAME_STATUS type packet
+        public const byte PACKET_GAME_SEARCH_REQUEST = 0x31; // in - Client's intent to join a *new* game. Can result in placing them in a queue.
+                                                                    // BREAKING NEXT -> public static final byte PACKET_GAME_CREATE_REQUEST = 0x31; // in - Client's intent to create their own game with it's settings included.
 
-        public const byte PACKET_FETCH_GAME_LIST = 0x33; // in - Requests a list of games (Responded to with a few PACKET_GAME_DETAIL's)
+        // out - Update's a client on their status in relation to the game. It can place the client in the queue, mark it as a spectator,
+        // or mark it as an active player. It can also indicate that a player has been kicked or denied from a game, no-matter their current status.
+        public const byte PACKET_GAME_STATUS = 0x32;
+
+        // These will be utilised differently to the final game.
+        // Currently, their only use is to offer spectating support.
+        //public static final byte PACKET_FETCH_GAME_LIST = 0x33; // in - Requests a list of games (Responded to with a few PACKET_GAME_DETAIL's)
         public const byte PACKET_REQUEST_GAME_DETAIL = 0x34; // in - Requests the details of a specific game
         public const byte PACKET_GAME_DETAIL = 0x35; // out - Sends details of the game to the client
 
@@ -75,34 +82,34 @@ namespace me.cg360.spookums.core.network
         public static PacketRegistry CreateRegistry()
         {
             return new PacketRegistry()
-                    .R(PACKET_PROTOCOL_INVALID_PACKET, null)
-                    .R(PACKET_PROTOCOL_CHECK, typeof(PacketOutProtocolCheck))
-                    .R(PACKET_PROTOCOL_SUCCESS, typeof(PacketInProtocolSuccess))
-                    .R(PACKET_PROTOCOL_ERROR, typeof(PacketInProtocolError))
-                    .R(PACKET_PROTOCOL_BATCH, null)
-                     
-                    .R(PACKET_SERVER_PING_REQUEST, typeof(PacketOutServerPingRequest))
-                    .R(PACKET_SERVER_DETAIL, typeof(PacketInServerDetail))
-                    .R(PACKET_CLIENT_DETAIL, null)
-                    .R(PACKET_SERVER_NOTICE, typeof(PacketInServerNotice))
-                    .R(PACKET_DISCONNECT_REASON, typeof(PacketInOutDisconnect))
-                     
-                    .R(PACKET_RESPONSE_WARNING, null)
-                    .R(PACKET_RESPONSE_SUCCESS, null)
-                    .R(PACKET_RESPONSE_ERROR, null)
-                    .R(PACKET_CHAT_MESSAGE, typeof(PacketInOutChatMessage))
-                     
-                    .R(PACKET_LOGIN, null)
-                    .R(PACKET_CREATE_ACCOUNT, null)
-                    .R(PACKET_LOGIN_RESPONSE, null)
-                            
-                    .R(PACKET_GAME_JOIN_REQUEST, null)
-                    .R(PACKET_GAME_CREATE_REQUEST, null)
-                    .R(PACKET_GAME_RESPONSE, null)
-                    .R(PACKET_FETCH_GAME_LIST, null)
-                    .R(PACKET_REQUEST_GAME_DETAIL, null)
-                    .R(PACKET_GAME_DETAIL, null);
-        }
+                .R(PACKET_PROTOCOL_INVALID_PACKET, null)
+                .R(PACKET_PROTOCOL_CHECK, typeof(PacketOutProtocolCheck))
+                .R(PACKET_PROTOCOL_SUCCESS, typeof(PacketInProtocolSuccess))
+                .R(PACKET_PROTOCOL_ERROR, typeof(PacketInProtocolError))
+                .R(PACKET_PROTOCOL_BATCH, null)
+                 
+                .R(PACKET_SERVER_PING_REQUEST, typeof(PacketOutServerPingRequest))
+                .R(PACKET_SERVER_DETAIL, typeof(PacketInServerDetail))
+                .R(PACKET_CLIENT_DETAIL, typeof(PacketOutClientDetail))
+                .R(PACKET_SERVER_NOTICE, typeof(PacketInServerNotice))
+                .R(PACKET_DISCONNECT_REASON, typeof(PacketInOutDisconnect))
+                 
+                .R(PACKET_RESPONSE_WARNING, null)
+                .R(PACKET_RESPONSE_SUCCESS, null)
+                .R(PACKET_RESPONSE_ERROR, null)
+                .R(PACKET_CHAT_MESSAGE, typeof(PacketInOutChatMessage))
+                 
+                .R(PACKET_LOGIN, null)
+                .R(PACKET_UPDATE_ACCOUNT, typeof(PacketInUpdateAccount))
+                .R(PACKET_LOGIN_RESPONSE, null)
+                 
+                .R(PACKET_GAME_JOIN_REQUEST, null)
+                .R(PACKET_GAME_SEARCH_REQUEST, null)
+                .R(PACKET_GAME_STATUS, null)
+                //.R(PACKET_FETCH_GAME_LIST, null)
+                .R(PACKET_REQUEST_GAME_DETAIL, null)
+                .R(PACKET_GAME_DETAIL, null);
+    }
 
     }
 }

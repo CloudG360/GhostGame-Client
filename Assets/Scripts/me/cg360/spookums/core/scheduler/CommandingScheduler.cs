@@ -16,20 +16,21 @@ namespace me.cg360.spookums.core.scheduler
             Children = new ConcurrentDictionary<Guid, Scheduler>();
         }
 
-        public void SetAsPrimaryInstance() {
+        public CommandingScheduler SetAsPrimaryInstance() {
             _primaryInstance = this;
+            return this;
         }
 
         
 
-        public void SyncSchedulers(Scheduler[] children) {
+        public void SyncSchedulers(params Scheduler[] children) {
             foreach (Scheduler s in children)
             {
                 Children.TryAdd(s.SchedulerID, s);
             }
         }
 
-        public void desyncSchedulers(Scheduler[] children) {
+        public void DesyncSchedulers(Scheduler[] children) {
             foreach (Scheduler s in children)
             {
                 Children.TryRemove(s.SchedulerID, out _);

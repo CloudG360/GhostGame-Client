@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using me.cg360.spookums.core.network.packet.generic;
 using me.cg360.spookums.core.network.packet;
+using me.cg360.spookums.utility;
 
 namespace me.cg360.spookums.core.network.netimpl {
 
@@ -10,7 +11,7 @@ namespace me.cg360.spookums.core.network.netimpl {
      */
     public abstract class NetworkInterface {
     
-        public abstract string OpenServerConnection(string hostname, int port);
+        public abstract void OpenServerConnection(string hostname, int port);
 
         public abstract List<NetworkPacket> CheckForInboundPackets();
     

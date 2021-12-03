@@ -8,7 +8,7 @@ using me.cg360.spookums.core.eventsys.type.network;
 using me.cg360.spookums.core.network.packet;
 using me.cg360.spookums.core.network.packet.generic;
 using me.cg360.spookums.utility;
-using net.cg360.spookums.core.network;
+using me.cg360.spookums.core.network;
 using UnityEngine;
 
 namespace me.cg360.spookums.core.network.netimpl.socket
@@ -41,7 +41,7 @@ namespace me.cg360.spookums.core.network.netimpl.socket
             }
         }
 
-        public override string OpenServerConnection(string hostname, int port)
+        public override void OpenServerConnection(string hostname, int port)
         {
             if (!IsRunning())
             {
@@ -51,11 +51,6 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                     IPHostEntry entry = Dns.GetHostEntry(hostname);
                     IPAddress ip = entry.AddressList[1];
                     IPEndPoint endpoint = new IPEndPoint(ip, port);
-
-                    foreach (IPAddress address in entry.AddressList)
-                    {
-                        Debug.Log(address.ToString());
-                    }
 
                     //Probs should be UDP
                     Socket client = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -71,13 +66,15 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                         IsSocketRunning = true;
 
                         StartPacketListenerThread();
-                        return null;
+                        Main.Client.EventManager.Call(new ConnectionKillEvent(0, "The server has finished."));
+                        return;
                     }
                     catch (Exception err)
                     {
                         Debug.Log("Error connecting:");
                         Debug.LogException(err);
-                        return "- Error -\n" + err.ToString();
+                        Main.Client.EventManager.Call(new ConnectionKillEvent(-3, "An error was experienced when connecting to the server...\n" + err.ToString()));
+                        return;
                     }
 
                 }
@@ -85,11 +82,13 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                 {
                     Debug.Log("Error Resolving:");
                     Debug.LogException(err);
-                    return "- Error -\n" + err.ToString();
+                    Main.Client.EventManager.Call(new ConnectionKillEvent(-2, "An error was experienced when resolving the server...\n" + err.ToString()));
+                    return;
                 }
             }
 
-            return "An unknown error occured";
+            Main.Client.EventManager.Call(new ConnectionKillEvent(-1, "An unknown error occured"));
+            return;
         }
 
         public override List<NetworkPacket> CheckForInboundPackets()

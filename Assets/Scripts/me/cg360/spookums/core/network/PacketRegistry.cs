@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using me.cg360.spookums.core.network.packet;
 using UnityEngine;
 
-namespace net.cg360.spookums.core.network {
+namespace me.cg360.spookums.core.network {
 
     // While it's not essential register a packet here, only packets
     // found here are processed when recieved by the server.
@@ -17,9 +17,10 @@ namespace net.cg360.spookums.core.network {
             PacketTypes = new Dictionary<byte, Type>();
         }
 
-        public void SetAsPrimaryInstance() 
+        public PacketRegistry SetAsPrimaryInstance() 
         {
             _primaryInstance = this;
+            return this;
         }
 
 

@@ -34,7 +34,7 @@ namespace me.cg360.spookums.core.scheduler.task
             if(!IsRunning) 
             {
                 IsRunning = true;
-                if(tickWithServer) Client.get().Scheduler.SyncSchedulers(new []{this});
+                if(tickWithServer) Main.Client.SchedulerBrain.SyncSchedulers(new []{this});
                 return true;
             }
             return false;
@@ -57,7 +57,7 @@ namespace me.cg360.spookums.core.scheduler.task
         /** Removes scheduler's hook to the server tick whilst clearing the queue */
         public override void PauseScheduler() {
             IsRunning = false;
-            Client.get().Scheduler.desyncSchedulers(new []{this});
+            Main.Client.SchedulerBrain.DesyncSchedulers(new []{this});
         }
 
         /** Clears all the tasks queued in the scheduler. */
@@ -147,7 +147,7 @@ namespace me.cg360.spookums.core.scheduler.task
                         break;
                     }
 
-                    SchedulerTasks.RemoveAt(0); // Operate like a queue.
+                    SchedulerTasks.Remove(task); // Operate like a queue.
                     // Remove from the start as long as it isn't an upcoming task.
                     // If a task is somehow scheduled *before* the current tick, it should
                     // be removed anyway.

@@ -13,6 +13,7 @@ public class Connect_ButtonController : MonoBehaviour
     public Button Button;
     public TMP_InputField IPInput;
     public TMP_InputField PortInput;
+
     void Start()
     {
         Button.onClick.AddListener(ClickedButton);
@@ -27,7 +28,10 @@ public class Connect_ButtonController : MonoBehaviour
         if (Button.interactable)
         {
             Debug.Log(IPInput.text + ":" + Int32.Parse(PortInput.text));
+            Main.StartServerClient(IPInput.text, Int32.Parse(PortInput.text));
             MasterController.SwitchPanel("load_serverconnecting");
+
+
         }
     }
 

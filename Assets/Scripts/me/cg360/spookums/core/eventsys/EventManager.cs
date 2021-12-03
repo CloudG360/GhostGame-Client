@@ -12,20 +12,20 @@ namespace me.cg360.spookums.core.eventsys
     {
         private static EventManager _primaryManager;
 
-        protected List<IEventFilter> filters; // Filter for EVERY listener.
-        protected List<Listener> listeners;
-        protected List<EventManager> children; // Send events to children too. Only sent if filter is passed.
+        protected List<IEventFilter> Filters; // Filter for EVERY listener.
+        protected List<Listener> Listeners;
+        protected List<EventManager> Children; // Send events to children too. Only sent if filter is passed.
 
 
         public EventManager(params IEventFilter[] filters)
         {
-            this.filters = new List<IEventFilter>();
-            this.listeners = new List<Listener>();
-            this.children = new List<EventManager>();
+            this.Filters = new List<IEventFilter>();
+            this.Listeners = new List<Listener>();
+            this.Children = new List<EventManager>();
 
             if (filters != null)
             {
-                this.filters.AddRange(filters);
+                this.Filters.AddRange(filters);
             }
         }
 
@@ -36,9 +36,10 @@ namespace me.cg360.spookums.core.eventsys
          *
          * Cannot be changed once initially called.
          */
-        public void SetAsPrimaryManager()
+        public EventManager SetAsPrimaryManager()
         {
             _primaryManager = this;
+            return this;
         }
 
         public void Call(BaseEvent e)
@@ -53,7 +54,7 @@ namespace me.cg360.spookums.core.eventsys
             // And this is the part where it's probably the least efficient.
             // Would be great to bake this but then I can't really use the FilteredListener.
             // Could maybe filter each method as I go?
-            foreach (Listener listener in listeners)
+            foreach (Listener listener in Listeners)
             {
                 foreach (HandlerMethodPair pair in listener.GetEventMethods(e))
                 {
@@ -114,7 +115,7 @@ namespace me.cg360.spookums.core.eventsys
             // Check that it isn't duped by clearing it.
             // If someone has used the same object instance to create two objects and overrided
             // #equals(), that's their problem.
-            listeners.Add(listener);
+            Listeners.Add(listener);
             return listener;
         }
 
@@ -125,11 +126,11 @@ namespace me.cg360.spookums.core.eventsys
 
         public void RemoveListener(Listener listener, bool removeFromChildren)
         {
-            listeners.Remove(listener);
+            Listeners.Remove(listener);
 
             if (removeFromChildren)
             {
-                foreach (EventManager child in children)
+                foreach (EventManager child in Children)
                 {
                     child.RemoveListener(listener, true); // Ensure children don't include it either.
                 }
@@ -159,17 +160,17 @@ namespace me.cg360.spookums.core.eventsys
 
         public IEventFilter[] GetFilters()
         {
-            return filters.ToArray();
+            return Filters.ToArray();
         }
 
         public Listener[] GetListeners()
         {
-            return listeners.ToArray();
+            return Listeners.ToArray();
         }
 
         public EventManager[] GetChildren()
         {
-            return children.ToArray();
+            return Children.ToArray();
         }
     }
 }
