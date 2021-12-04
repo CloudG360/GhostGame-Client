@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace me.cg360.spookums.ui.menu.main
+namespace me.cg360.spookums.ui.menu
 {
     public class FieldRewriter : UILookup
     {

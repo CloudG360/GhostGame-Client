@@ -7,7 +7,7 @@ using me.cg360.spookums.core.network.netimpl.socket;
 using me.cg360.spookums.core.network.packet.info;
 using me.cg360.spookums.core.scheduler;
 using me.cg360.spookums.core.scheduler.task;
-using me.cg360.spookums.ui.menu.main;
+using me.cg360.spookums.ui.menu;
 using me.cg360.spookums.utility;
 using UnityEngine;
 

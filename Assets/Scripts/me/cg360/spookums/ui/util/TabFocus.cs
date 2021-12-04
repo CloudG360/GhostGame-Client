@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class TabFocus : MonoBehaviour
+namespace me.cg360.spookums.ui.util
 {
-    public TMP_InputField ThisInput;
-    public TMP_InputField NextInput;
-    
-    void Update()
+    public class TabFocus : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        public TMP_InputField ThisInput;
+        public TMP_InputField NextInput;
+
+        void Update()
         {
-            if (ThisInput != null && NextInput != null && ThisInput.isFocused)
+            if (Input.GetKeyDown(KeyCode.Tab))
             {
-                ThisInput.ReleaseSelection();
-                NextInput.Select();
+                if (ThisInput != null && NextInput != null && ThisInput.isFocused)
+                {
+                    ThisInput.ReleaseSelection();
+                    NextInput.Select();
+                }
             }
         }
     }

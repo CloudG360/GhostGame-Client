@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace me.cg350.behaviour {
+namespace me.cg360.spookums.behaviour {
 
     public class CubeSpin : MonoBehaviour
     {
