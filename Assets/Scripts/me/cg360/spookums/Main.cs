@@ -134,19 +134,19 @@ namespace me.cg360.spookums
             MainScheduler.prepareTask(() =>
             {
                 ResetServerClient();
-                Debug.Log("1");
                 MainMenuController.enabled = true;
                 MainMenuController.SwitchPanel("server_error");
-                Debug.Log("2");
 
-
-                FieldRewriter rewriter = MainMenuController.ElementLookup["server_error"]
+                FieldRewriter rewriterError= MainMenuController.ElementLookup["server_error"]
                     .GetComponent<FieldRewriter>();
                 
-                Debug.Log("3" + rewriter.gameObject.name);
-
-                rewriter.WriteField("title", title);
-                rewriter.WriteField("description", desc);
+                rewriterError.WriteField("title", title);
+                rewriterError.WriteField("description", desc);
+                
+                
+                FieldRewriter rewriterConnecting = MainMenuController.ElementLookup["load_serverconnecting"]
+                    .GetComponent<FieldRewriter>();
+                rewriterConnecting.WriteField("description", "");
             }).Schedule();
         }
         

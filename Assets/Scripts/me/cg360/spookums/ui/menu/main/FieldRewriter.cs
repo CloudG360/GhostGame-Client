@@ -21,7 +21,6 @@ namespace me.cg360.spookums.ui.menu.main
                 }
                 
                 textEditor.SetText(content);
-                Debug.Log("Set Text");
                 return true;
             }
             else
