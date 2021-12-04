@@ -8,17 +8,15 @@ public class MenuPanelController : UILookup
     public string DefaultPanel = "connect_panel";
     public string CurrentPanel { get; private set; }
     
-    public override void Start()
+    public override void Awake()
     {
         CurrentPanel = DefaultPanel;
+        ElementLookup = new Dictionary<string, GameObject>();
         foreach (ElementEntry p in Elements)
         {
             ElementLookup.Add(p.id, p.panel);
-            if (p.id == CurrentPanel)
-            {
-                p.panel.SetActive(true);
-            }
-            else
+            p.panel.SetActive(true);
+            if (p.id != CurrentPanel)
             {
                 p.panel.SetActive(false);
             }

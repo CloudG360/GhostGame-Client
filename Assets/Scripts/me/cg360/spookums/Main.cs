@@ -4,6 +4,7 @@ using me.cg360.spookums.core.eventsys.handler;
 using me.cg360.spookums.core.eventsys.type.network;
 using me.cg360.spookums.core.network;
 using me.cg360.spookums.core.network.netimpl.socket;
+using me.cg360.spookums.core.network.packet.info;
 using me.cg360.spookums.core.scheduler;
 using me.cg360.spookums.core.scheduler.task;
 using me.cg360.spookums.ui.menu.main;
@@ -91,25 +92,61 @@ namespace me.cg360.spookums
 
             switch (e.Packet.PacketID)
             {
-                // Handle incoming packets
+                //TODO: Check that the client isn't logged in. If it is, scream about this and self-disconnect.
+                case VanillaProtocol.PACKET_PROTOCOL_ERROR:
+                    PacketInProtocolError pProtocolError = (PacketInProtocolError)e.Packet;
+                    FailServerConnection("Out of date!", $"The server requires you to be on version {pProtocolError.RequiredClientVersionInfo}.");
+                    break;
+                
+                
+                case VanillaProtocol.PACKET_PROTOCOL_SUCCESS:
+                    PacketInProtocolSuccess pProtocolSuccess = (PacketInProtocolSuccess)e.Packet;
+                    MainScheduler.prepareTask(() =>
+                    {
+                        if (MainMenuController.enabled && MainMenuController.CurrentPanel == "load_serverconnecting")
+                        {
+                            FieldRewriter rewriter = MainMenuController.ElementLookup["load_serverconnecting"]
+                                .GetComponent<FieldRewriter>();
+                            rewriter.WriteField("description", "Verified Version");
+                        }
+                    }).Schedule();
+                    
+                    break;
             }
         }
 
         [GEventHandler]
+        public void onServerConnectionEstablished(ConnectionEstablishedEvent e)
+        {
+            e.Net.SendDataPacket(new PacketOutProtocolCheck(VanillaProtocol.PROTOCOL_ID), true);
+        }
+        
+
+        [GEventHandler]
         public void onServerConnectFail(ConnectionKillEvent e)
         {
-            Debug.Log("AAAAAAAAA");
-            
+            FailServerConnection($"Failed to connect (code: {e.ExitCode})", e.Reason);
+        }
+
+
+        protected void FailServerConnection(string title, string desc)
+        {
             MainScheduler.prepareTask(() =>
             {
                 ResetServerClient();
+                Debug.Log("1");
                 MainMenuController.enabled = true;
                 MainMenuController.SwitchPanel("server_error");
+                Debug.Log("2");
+
+
                 FieldRewriter rewriter = MainMenuController.ElementLookup["server_error"]
                     .GetComponent<FieldRewriter>();
+                
+                Debug.Log("3" + rewriter.gameObject.name);
 
-                rewriter.WriteField("title", $"Failed to connect (code: {e.ExitCode})");
-                rewriter.WriteField("description", e.Reason);
+                rewriter.WriteField("title", title);
+                rewriter.WriteField("description", desc);
             }).Schedule();
         }
         

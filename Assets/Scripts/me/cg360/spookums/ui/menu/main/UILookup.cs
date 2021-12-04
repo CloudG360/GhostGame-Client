@@ -9,10 +9,12 @@ public abstract class UILookup : MonoBehaviour
     public Dictionary<string, GameObject> ElementLookup = new Dictionary<string, GameObject>();
     
 
-    public virtual void Start()
+    public virtual void Awake()
     {
+        ElementLookup = new Dictionary<string, GameObject>();
         foreach (ElementEntry p in Elements)
         {
+            Debug.Log($"{gameObject.name}.{p.id} = {p.panel.name}");
             ElementLookup.Add(p.id, p.panel);
         }
         

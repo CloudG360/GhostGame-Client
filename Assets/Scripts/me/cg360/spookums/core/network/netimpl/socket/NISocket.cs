@@ -64,8 +64,10 @@ namespace me.cg360.spookums.core.network.netimpl.socket
                         client.Connect(endpoint);
                         ClientSocket = client;
                         IsSocketRunning = true;
-
+                        
+                        Main.Client.EventManager.Call(new ConnectionEstablishedEvent(hostname, port, this));
                         StartPacketListenerThread();
+                        
                         Main.Client.EventManager.Call(new ConnectionKillEvent(0, "The server has finished."));
                         return;
                     }

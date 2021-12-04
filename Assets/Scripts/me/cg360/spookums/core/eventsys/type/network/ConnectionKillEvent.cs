@@ -5,7 +5,7 @@ using me.cg360.spookums.core.network.packet;
 
 namespace me.cg360.spookums.core.eventsys.type.network
 {
-    public class ConnectionKillEvent : CancellableEvent 
+    public class ConnectionKillEvent : BaseEvent 
     {
 
         public readonly int ExitCode;

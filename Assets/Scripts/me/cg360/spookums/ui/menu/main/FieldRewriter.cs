@@ -21,10 +21,12 @@ namespace me.cg360.spookums.ui.menu.main
                 }
                 
                 textEditor.SetText(content);
+                Debug.Log("Set Text");
                 return true;
             }
             else
             {
+                Debug.Log("Missing text field: "+fieldID);
                 return false;
             }
         }
