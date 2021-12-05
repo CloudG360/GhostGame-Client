@@ -177,10 +177,10 @@ namespace me.cg360.spookums.utility
 
         /** @return the amount of bytes written. */
         public int PutUTF8String(string str) {
-            if(str.Length == 0) return 0;
+            if(String.IsNullOrEmpty(str)) return 0;
 
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
-            if(strBytes.Length <= ushort.MaxValue) throw new Exception("Illegal Argument: String exceeds the limit of "+ushort.MaxValue+" bytes.");
+            if(strBytes.Length >= ushort.MaxValue) throw new Exception("Illegal Argument: String exceeds the limit of "+ushort.MaxValue+" bytes.");
 
             // Check if both the length of bytes + the length short can be included.
             if(CanReadBytesAhead(2 + strBytes.Length)) {
@@ -195,10 +195,10 @@ namespace me.cg360.spookums.utility
 
         /** @return the amount of bytes written. */
         public ushort PutSmallUTF8String(String str) {
-            if(str.Length == 0) return 0;
+            if(String.IsNullOrEmpty(str)) return 0;
 
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
-            if(strBytes.Length <= byte.MaxValue) throw new Exception("String exceeds the limit of "+byte.MaxValue+" bytes.");
+            if(strBytes.Length >= byte.MaxValue) throw new Exception("String exceeds the limit of "+byte.MaxValue+" bytes.");
 
             // Check if both the length of bytes + the length short can be included.
             if(CanReadBytesAhead(1 + strBytes.Length)) {
@@ -212,7 +212,7 @@ namespace me.cg360.spookums.utility
 
         /** A string is added without length marking bytes at the start. */
         public int PutUnboundUTF8String(String str) {
-            if(str.Length == 0) return 0;
+            if(String.IsNullOrEmpty(str)) return 0;
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
 
             // Check if both the length of bytes + the length short can be included.
