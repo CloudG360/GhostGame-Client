@@ -99,9 +99,9 @@ namespace me.cg360.spookums.core.network
                 .R(PACKET_RESPONSE_ERROR, null)
                 .R(PACKET_CHAT_MESSAGE, typeof(PacketInOutChatMessage))
                  
-                .R(PACKET_LOGIN, null)
-                .R(PACKET_UPDATE_ACCOUNT, typeof(PacketInUpdateAccount))
-                .R(PACKET_LOGIN_RESPONSE, null)
+                .R(PACKET_LOGIN, typeof(PacketOutLogin))
+                .R(PACKET_UPDATE_ACCOUNT, typeof(PacketOutUpdateAccount))
+                .R(PACKET_LOGIN_RESPONSE, typeof(PacketInLoginResponse))
                  
                 .R(PACKET_GAME_JOIN_REQUEST, null)
                 .R(PACKET_GAME_SEARCH_REQUEST, null)

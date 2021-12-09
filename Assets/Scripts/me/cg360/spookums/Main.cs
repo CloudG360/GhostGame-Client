@@ -4,6 +4,7 @@ using me.cg360.spookums.core.eventsys.handler;
 using me.cg360.spookums.core.eventsys.type.network;
 using me.cg360.spookums.core.network;
 using me.cg360.spookums.core.network.netimpl.socket;
+using me.cg360.spookums.core.network.packet.auth;
 using me.cg360.spookums.core.network.packet.info;
 using me.cg360.spookums.core.scheduler;
 using me.cg360.spookums.core.scheduler.task;
@@ -73,9 +74,9 @@ namespace me.cg360.spookums
         }
 
 
-        public void Update()
+        public void FixedUpdate()
         {
-             SchedulerBrain.RunSchedulerTick();
+            SchedulerBrain.RunSchedulerTick();
         }
 
 
@@ -108,9 +109,19 @@ namespace me.cg360.spookums
                             FieldRewriter rewriter = MainMenuController.ElementLookup["load_serverconnecting"]
                                 .GetComponent<FieldRewriter>();
                             rewriter.WriteField("description", "Verified Version");
+                            
+                            MainMenuController.SwitchPanel("load_loginregister");
                         }
                     }).Schedule();
                     
+                    break;
+                
+                case VanillaProtocol.PACKET_LOGIN_RESPONSE:
+                    PacketInLoginResponse pLoginResponse = (PacketInLoginResponse)e.Packet;
+                    Debug.Log(
+                        $"Code: {PacketInLoginResponse.CodeToStatus(pLoginResponse.StatusCode).ToString()} | Username: {pLoginResponse.Username} | Token: {pLoginResponse.Token}"
+                    );
+
                     break;
             }
         }

@@ -7,7 +7,7 @@ namespace me.cg360.spookums.core.network.packet.auth
 {
     // This packet contains a lot of optional peices of data. They are
     // ordered based on their apperence in the flags.
-    public class PacketInUpdateAccount : NetworkPacket
+    public class PacketOutUpdateAccount : NetworkPacket
     {
 
         protected static readonly int EXISTING_PASSWORD_ID = 1;
@@ -17,11 +17,11 @@ namespace me.cg360.spookums.core.network.packet.auth
 
         public bool IsCreatingNewAccount { get; set; } = false;
 
-        protected string ExistingPassword { get; set; } = null;
-        protected string NewPassword { get; set; } = null;
+        public string ExistingPassword { get; set; } = null;
+        public string NewPassword { get; set; } = null;
 
-        protected string ExistingUsername { get; set; } = null;
-        protected string NewUsername { get; set; } = null;
+        public string ExistingUsername { get; set; } = null;
+        public string NewUsername { get; set; } = null;
 
 
         protected override byte GetPacketTypeID()
@@ -38,7 +38,24 @@ namespace me.cg360.spookums.core.network.packet.auth
             //newPassword: Is a new password being set? (Requires original password if updating)
             //existingUsername: Used to indicate which account is being updated.
             //newUsername: Used to set a new username for an update/new account.
-            return 0;
+            ushort size = 1;
+            
+            MicroBoolean flags = new MicroBoolean();
+            Body.PutUnsignedByte(0x00); // Temporary
+            
+
+
+            flags.SetValue(0, IsCreatingNewAccount);
+            
+            size += AddOptionalString(flags, 1, ExistingPassword);
+            size += AddOptionalString(flags, 2, NewPassword);
+            size += AddOptionalString(flags, 3, ExistingUsername);
+            size += AddOptionalString(flags, 4, NewUsername);
+            
+            Body.Reset();
+            Body.PutUnsignedByte(flags.GetStorageByte());
+            
+            return size;
         }
 
         protected override void DecodeBody(ushort inboundSize)
@@ -47,22 +64,20 @@ namespace me.cg360.spookums.core.network.packet.auth
         }
 
 
-        protected void ifStringFlagTrue(MicroBoolean flags, int index, ThreadStart doThis)
+        protected ushort AddOptionalString(MicroBoolean flags, int index, string value)
         {
-            if (flags.GetValue(index) && this.Body.CanReadBytesAhead(1))
-            {
-                doThis.Invoke();
-            }
+            flags.SetValue(index, value != null);
+            return Body.PutSmallUTF8String(value);
         }
 
 
-        public bool isValid()
+        public bool IsValid()
         {
-            return getMissingFields().IsEmpty();
+            return GetMissingFields().IsEmpty();
         }
 
 
-        public MicroBoolean getMissingFields()
+        public MicroBoolean GetMissingFields()
         {
             if (this.IsCreatingNewAccount)
             {
@@ -78,13 +93,6 @@ namespace me.cg360.spookums.core.network.packet.auth
                 return MicroBoolean.Empty()
                         .SetValue(EXISTING_USERNAME_ID, Check.IsNull(this.ExistingUsername)); // Some changes don't require the password.
             }
-        }
-        
-
-
-        protected static bool IsFilledString(string str)
-        {
-            return (str != null) && (str.Length > 0);
         }
     }
 }

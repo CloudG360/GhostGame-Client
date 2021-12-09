@@ -218,8 +218,8 @@ namespace me.cg360.spookums.core.scheduler.task
             protected bool IsAsynchronous;
 
             internal PendingEntryBuilder(Scheduler scheduler, SchedulerTask task) {
-                Scheduler = Check.NullParam(scheduler, "scheduler");;
-                Task = Check.NullParam(task, "task");;
+                Scheduler = Check.NullParam(scheduler, "scheduler");
+                Task = Check.NullParam(task, "task");
 
                 Interval = 0;
                 Delay = 0;
