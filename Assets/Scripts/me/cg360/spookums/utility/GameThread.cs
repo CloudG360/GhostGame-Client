@@ -30,7 +30,7 @@ namespace me.cg360.spookums.utility
                 {
                     try
                     {
-                        thread.Interrupt();
+                        thread.Abort();
                     }
                     catch (Exception err)
                     {

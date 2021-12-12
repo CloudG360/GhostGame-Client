@@ -6,7 +6,8 @@ namespace me.cg360.spookums.utility
 {
     public class NetworkBuffer
     {
-        
+        public const double VECTOR2_ACCURACY = 100000D;
+
         public const ushort SHORT_BYTE_COUNT = 2;
         public const ushort INT_BYTE_COUNT = 4;
         public const ushort LONG_BYTE_COUNT = 8;
@@ -182,9 +183,9 @@ namespace me.cg360.spookums.utility
         }
 
         public Vector2 GetVector2() {
-            float xIn = GetInt();
-            float zIn = GetInt();
-            return new Vector2(xIn / 4096f, zIn / 4096f);
+            double xIn = GetInt();
+            double zIn = GetInt();
+            return new Vector2((float) (xIn / VECTOR2_ACCURACY), (float) (zIn / VECTOR2_ACCURACY));
         }
 
 
@@ -284,8 +285,8 @@ namespace me.cg360.spookums.utility
 
 
         public ushort PutVector2(Vector2 vector) {
-            double lX = vector.x * 4096;
-            double lZ = vector.y * 4096;
+            double lX = vector.x * VECTOR2_ACCURACY;
+            double lZ = vector.y * VECTOR2_ACCURACY;
 
             PutInt((int) Math.Floor(lX));
             PutInt((int) Math.Floor(lZ));
