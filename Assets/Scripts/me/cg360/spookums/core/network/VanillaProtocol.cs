@@ -3,6 +3,7 @@ using me.cg360.spookums.core.network.packet.info;
 using me.cg360.spookums.core.network;
 using UnityEngine;
 using me.cg360.spookums.core.network.packet.auth;
+using me.cg360.spookums.core.network.packet.game.entity;
 
 namespace me.cg360.spookums.core.network
 {
@@ -77,6 +78,12 @@ namespace me.cg360.spookums.core.network
         //public static final byte PACKET_FETCH_GAME_LIST = 0x33; // in - Requests a list of games (Responded to with a few PACKET_GAME_DETAIL's)
         public const byte PACKET_REQUEST_GAME_DETAIL = 0x34; // in - Requests the details of a specific game
         public const byte PACKET_GAME_DETAIL = 0x35; // out - Sends details of the game to the client
+        
+        
+        public const byte PACKET_ENTITY_ADD = 0x50; // out - Spawns an entity on the client side based on its runtime id.
+        public const byte PACKET_ENTITY_REMOVE = 0x51; // out - Removes an entity from the client side based on its runtime id
+        public const byte PACKET_ENTITY_MOVE = 0x52; // out - Moves an entity on the client. Big, small, whatever, done in one packet.
+
 
 
         public static PacketRegistry CreateRegistry()
@@ -108,7 +115,11 @@ namespace me.cg360.spookums.core.network
                 .R(PACKET_GAME_STATUS, null)
                 //.R(PACKET_FETCH_GAME_LIST, null)
                 .R(PACKET_REQUEST_GAME_DETAIL, null)
-                .R(PACKET_GAME_DETAIL, null);
+                .R(PACKET_GAME_DETAIL, null)
+                
+                .R(PACKET_ENTITY_ADD, typeof(PacketInAddEntity))
+                .R(PACKET_ENTITY_REMOVE, typeof(PacketInRemoveEntity))
+                .R(PACKET_ENTITY_MOVE, null);
     }
 
     }

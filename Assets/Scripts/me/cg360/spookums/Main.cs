@@ -5,6 +5,7 @@ using me.cg360.spookums.core.eventsys.type.network;
 using me.cg360.spookums.core.network;
 using me.cg360.spookums.core.network.netimpl.socket;
 using me.cg360.spookums.core.network.packet.auth;
+using me.cg360.spookums.core.network.packet.game.entity;
 using me.cg360.spookums.core.network.packet.info;
 using me.cg360.spookums.core.scheduler;
 using me.cg360.spookums.core.scheduler.task;
@@ -122,6 +123,11 @@ namespace me.cg360.spookums
                         $"Code: {PacketInLoginResponse.CodeToStatus(pLoginResponse.StatusCode).ToString()} | Username: {pLoginResponse.Username} | Token: {pLoginResponse.Token}"
                     );
 
+                    break;
+                
+                case VanillaProtocol.PACKET_ENTITY_ADD:
+                    PacketInAddEntity pEntityAdd = (PacketInAddEntity) e.Packet;
+                    
                     break;
             }
         }

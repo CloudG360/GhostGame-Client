@@ -7,6 +7,12 @@ namespace me.cg360.spookums.utility
     public class NetworkBuffer
     {
         
+        public const ushort SHORT_BYTE_COUNT = 2;
+        public const ushort INT_BYTE_COUNT = 4;
+        public const ushort LONG_BYTE_COUNT = 8;
+        public const ushort VECTOR2_BYTE_COUNT = 8;
+        
+        
         public byte[] Buffer { get; private set; }
         public int PointerIndex { get; private set; }
 
@@ -120,6 +126,34 @@ namespace me.cg360.spookums.utility
             throw new Exception("NetworkBuffer Underflow");
         }
         
+        public uint GetUnsignedInt() {
+            if(CanReadBytesAhead(4)) {
+                uint total = 0;
+
+                total += (((uint) FetchRawByte()) << 24) & 0xFF000000;
+                total += (((uint) FetchRawByte()) << 16) & 0x00FF0000;
+                total += (((uint) FetchRawByte()) << 8 ) & 0x0000FF00;
+                total +=  ((uint) FetchRawByte())        & 0x000000FF;
+
+                return total;
+            }
+            throw new Exception("NetworkBuffer Underflow");
+        }
+        
+        public int GetInt() {
+            if(CanReadBytesAhead(4)) {
+                int number = 0x00000000;
+
+                number |= FetchRawByte() << 24;
+                number |= FetchRawByte() << 16;
+                number |= FetchRawByte() << 8;
+                number |= FetchRawByte();
+
+                return number;
+            }
+            throw new Exception("NetworkBuffer Underflow");
+        }
+        
         public String GetUTF8String() {
             ushort len = GetUnsignedShort();
             return GetUnboundUTF8String(len);
@@ -138,6 +172,12 @@ namespace me.cg360.spookums.utility
                return Encoding.UTF8.GetString(strBytes);
             }
             throw new Exception("NetworkBuffer Underflow");
+        }
+        
+        public Vector2 GetVector2() {
+            float xIn = this.GetInt();
+            float zIn = this.GetInt();
+            return new Vector2(xIn / 4096f, zIn / 4096f);
         }
 
 
@@ -174,9 +214,34 @@ namespace me.cg360.spookums.utility
 
             return false;
         }
+        
+        public ushort PutUnsignedInt(uint value) {
+            if(value >= Math.Pow(2, 32)) throw new Exception("Illegal Argument: Provided an 'unsigned int' with a value greater than 2^32");
 
-        /** @return the amount of bytes written. */
-        public int PutUTF8String(string str) {
+            if(CanReadBytesAhead(4)) {
+                WriteByte((byte) ((value & 0xFF00) >> 24));
+                WriteByte((byte) ((value & 0xFF00) >> 16));
+                WriteByte((byte) ((value & 0x00FF) >> 8));
+                WriteByte((byte)  (value & 0x00FF));
+                return INT_BYTE_COUNT;
+            }
+            return 0;
+        }
+
+
+        public ushort PutInt(int value) {
+            if(CanReadBytesAhead(4)) {
+                WriteByte( (byte) ((value & 0xFF000000) >> 24) );
+                WriteByte( (byte) ((value & 0x00FF0000) >> 16) );
+                WriteByte( (byte) ((value & 0x0000FF00) >> 8 ) );
+                WriteByte( (byte)  (value & 0x000000FF)        );
+                return INT_BYTE_COUNT;
+            }
+            return 0;
+        }
+        
+        
+        public ushort PutUTF8String(string str) {
             if(String.IsNullOrEmpty(str)) return 0;
 
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
@@ -186,7 +251,7 @@ namespace me.cg360.spookums.utility
             if(CanReadBytesAhead(2 + strBytes.Length)) {
                 if(PutUnsignedShort((ushort) strBytes.Length)) {
                     WriteBytes(strBytes);
-                    return 2 + strBytes.Length;
+                    return (ushort) (2 + strBytes.Length);
                 }
             }
 
@@ -211,16 +276,26 @@ namespace me.cg360.spookums.utility
         }
 
         /** A string is added without length marking bytes at the start. */
-        public int PutUnboundUTF8String(String str) {
+        public ushort PutUnboundUTF8String(String str) {
             if(String.IsNullOrEmpty(str)) return 0;
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
 
             // Check if both the length of bytes + the length short can be included.
             if(CanReadBytesAhead(strBytes.Length)) {
                 WriteBytes(strBytes);
-                return strBytes.Length;
+                return (ushort) strBytes.Length;
             }
             return 0;
+        }
+        
+        public ushort PutVector2(Vector2 vector) {
+            double lX = vector.x * 4096;
+            double lZ = vector.y * 4096;
+
+            PutInt((int) Math.Floor(lX));
+            PutInt((int) Math.Floor(lZ));
+
+            return VECTOR2_BYTE_COUNT;
         }
 
 
