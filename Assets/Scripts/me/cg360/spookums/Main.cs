@@ -122,12 +122,16 @@ namespace me.cg360.spookums
                     Debug.Log(
                         $"Code: {PacketInLoginResponse.CodeToStatus(pLoginResponse.StatusCode).ToString()} | Username: {pLoginResponse.Username} | Token: {pLoginResponse.Token}"
                     );
+                    NetworkInterface.SendDataPacket(new PacketOutServerPingRequest(), true);
 
                     break;
                 
                 case VanillaProtocol.PACKET_ENTITY_ADD:
                     PacketInAddEntity pEntityAdd = (PacketInAddEntity) e.Packet;
-                    
+                    Debug.Log(
+                        $"Entity | rID = {pEntityAdd.EntityRuntimeID} | type = {pEntityAdd.EntityTypeId} | position = {pEntityAdd.Position} | " +
+                        $"Floor = {pEntityAdd.FloorNumber} | JSON = {pEntityAdd.PropertiesJSON} | JSON Length = {pEntityAdd.PropertiesJSON.Length}"
+                    );
                     break;
             }
         }

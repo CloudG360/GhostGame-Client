@@ -32,7 +32,7 @@ namespace me.cg360.spookums.core.network.packet.generic
             string selectedText = Text ?? DEFAULT_OUTBOUND_TEXT;
 
             Body.Reset();
-            int strSize = Body.PutUnboundUTF8String(selectedText);
+            int strSize = Body.PutUTF8String(selectedText);
 
             return (ushort) strSize;
         }
@@ -40,13 +40,13 @@ namespace me.cg360.spookums.core.network.packet.generic
         protected override void DecodeBody(ushort inboundSize)
         {
 
-            if (inboundSize == 0)
+            if (inboundSize < 2)
             {
                 Text = DEFAULT_INBOUND_TEXT;
             }
             else
             {
-                Text = Body.GetUnboundUTF8String(inboundSize);
+                Text = Body.GetUTF8String();
             }
 
             Body.Reset();

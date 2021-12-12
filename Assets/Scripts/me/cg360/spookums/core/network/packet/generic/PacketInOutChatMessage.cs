@@ -19,20 +19,20 @@ namespace me.cg360.spookums.core.network.packet.generic {
             string selectedText = Text ?? " ";
 
             Body.Reset();
-            int size = Body.PutUnboundUTF8String(selectedText);
+            int size = Body.PutUTF8String(selectedText);
 
             return (ushort) size;
         }
 
         protected override void DecodeBody(ushort inboundSize)
         {
-            if (inboundSize == 0)
+            if (inboundSize < 2)
             {
                 Text = " ";
             }
             else
             {
-                Text = Body.GetUnboundUTF8String(inboundSize);
+                Text = Body.GetUTF8String();
             }
 
             Body.Reset();

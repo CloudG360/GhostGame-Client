@@ -38,7 +38,7 @@ namespace me.cg360.spookums.utility
         /** Counts the amount of bytes between the pointer (inclusive) and the end of the buffer. */
         public int CountBytesRemaining()
         {
-            return Buffer.Length - PointerIndex;
+            return (Buffer.Length - PointerIndex);// + 1;
         }
 
         /** Checks if the buffer has a provided number of bytes left before the end. */
@@ -154,29 +154,36 @@ namespace me.cg360.spookums.utility
             throw new Exception("NetworkBuffer Underflow");
         }
         
-        public String GetUTF8String() {
-            ushort len = GetUnsignedShort();
-            return GetUnboundUTF8String(len);
-        }
-        
+        /** @return a UTF8 formatted string (<256 bytes length) from the current pointer position in the network buffer. */
         public String GetSmallUTF8String() {
-            byte len = Get();
-            return GetUnboundUTF8String(len);
-        }
+            if(CanReadBytesAhead(1)) {
+                int length = Get();
 
-        public String GetUnboundUTF8String(int byteCount)
-        {
-            if (byteCount == 0) return "";
-            if(CanReadBytesAhead(byteCount)) {
-               byte[] strBytes = FetchRawBytes(byteCount);
-               return Encoding.UTF8.GetString(strBytes);
+                if(CanReadBytesAhead(length)) {
+                    byte[] strBytes = FetchRawBytes(length);
+                    return Encoding.UTF8.GetString(strBytes);
+                }
             }
+
             throw new Exception("NetworkBuffer Underflow");
         }
-        
+
+        public String GetUTF8String() {
+            if(CanReadBytesAhead(2)) {
+                int length = GetUnsignedShort();
+
+                if(CanReadBytesAhead(length)) {
+                    byte[] strBytes = FetchRawBytes(length);
+                    return Encoding.UTF8.GetString(strBytes);
+                }
+            }
+
+            throw new Exception("NetworkBuffer Underflow");
+        }
+
         public Vector2 GetVector2() {
-            float xIn = this.GetInt();
-            float zIn = this.GetInt();
+            float xIn = GetInt();
+            float zIn = GetInt();
             return new Vector2(xIn / 4096f, zIn / 4096f);
         }
 
@@ -275,19 +282,7 @@ namespace me.cg360.spookums.utility
             return 0;
         }
 
-        /** A string is added without length marking bytes at the start. */
-        public ushort PutUnboundUTF8String(String str) {
-            if(String.IsNullOrEmpty(str)) return 0;
-            byte[] strBytes = Encoding.UTF8.GetBytes(str);
 
-            // Check if both the length of bytes + the length short can be included.
-            if(CanReadBytesAhead(strBytes.Length)) {
-                WriteBytes(strBytes);
-                return (ushort) strBytes.Length;
-            }
-            return 0;
-        }
-        
         public ushort PutVector2(Vector2 vector) {
             double lX = vector.x * 4096;
             double lZ = vector.y * 4096;

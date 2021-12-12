@@ -28,7 +28,7 @@
             if (Body.CanReadBytesAhead(2)) // At least 2 bytes (1 for type, 1+ message bytes)
             {
                 MessageType = Body.Get();
-                Message = Body.GetUnboundUTF8String(Body.CountBytesRemaining());
+                Message = Body.GetUTF8String();
             }
             else
             {

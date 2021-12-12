@@ -24,7 +24,7 @@ namespace me.cg360.spookums.core.network.packet {
             NetworkBuffer data = NetworkBuffer.Wrap(new byte[VanillaProtocol.MAX_PACKET_SIZE]);
 
             BodySize = EncodeBody();
-            ushort size = (ushort) (BodySize + 1); // packet id + body
+            ushort size = (ushort) (1 + BodySize  + 1); // packet id + body + hacky trailing byte
             
             data.PutUnsignedShort(size);
             data.Put(PacketID);

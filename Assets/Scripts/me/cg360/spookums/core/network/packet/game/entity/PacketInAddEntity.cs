@@ -37,8 +37,10 @@ namespace me.cg360.spookums.core.network.packet.game.entity
             total += Body.PutSmallUTF8String(EntityTypeId);
             total += Body.PutVector2(Position);
             total += 1; Body.PutUnsignedByte(FloorNumber);
-            total += Body.PutUnboundUTF8String(PropertiesJSON);
+            total += Body.PutUTF8String(PropertiesJSON);
 
+            
+            
             return total;
         }
 
@@ -54,9 +56,7 @@ namespace me.cg360.spookums.core.network.packet.game.entity
                     Position = Body.GetVector2();
                     FloorNumber = Body.Get();
 
-                    PropertiesJSON = Body.CountBytesRemaining() > 0
-                        ? Body.GetUnboundUTF8String(Body.CountBytesRemaining())
-                        : "{}";
+                    PropertiesJSON = Body.GetUTF8String();
                 }
             }
         }

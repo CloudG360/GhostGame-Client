@@ -22,7 +22,7 @@
             if (Body.CanReadBytesAhead(2))
             {
                 RequiredProtocolVersion = Body.GetUnsignedShort();
-                RequiredClientVersionInfo = Body.GetUnboundUTF8String(inboundSize - 2);
+                RequiredClientVersionInfo = Body.GetUTF8String();
             }
         }
     }
