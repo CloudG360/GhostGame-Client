@@ -117,7 +117,7 @@ namespace me.cg360.spookums.core.network
 
                 .R(PACKET_GAME_JOIN_REQUEST, null)
                 .R(PACKET_GAME_SEARCH_REQUEST, typeof(PacketOutGameQueueRequest))
-                .R(PACKET_GAME_STATUS, null)
+                .R(PACKET_GAME_STATUS, typeof(PacketInGameStatus))
                 //.R(PACKET_FETCH_GAME_LIST, null)
                 .R(PACKET_REQUEST_GAME_DETAIL, null)
                 .R(PACKET_GAME_DETAIL, null)

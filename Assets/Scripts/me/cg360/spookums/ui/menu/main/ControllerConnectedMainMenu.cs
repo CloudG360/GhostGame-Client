@@ -37,6 +37,7 @@ namespace me.cg360.spookums.ui.menu.main
             if (ButtonJoinQueue.interactable)
             {
                 ButtonJoinQueue.interactable = false;
+                Main.MainMenuController.SwitchPanel("load_joiningqueue");
                 Main.Client.NetworkInterface.SendDataPacket(new PacketOutGameQueueRequest(), true);
             }
         }

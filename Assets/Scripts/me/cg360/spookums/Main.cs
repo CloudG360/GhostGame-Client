@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections;
 using me.cg360.spookums.core.eventsys;
 using me.cg360.spookums.core.eventsys.handler;
 using me.cg360.spookums.core.eventsys.type.network;
 using me.cg360.spookums.core.network;
 using me.cg360.spookums.core.network.netimpl.socket;
 using me.cg360.spookums.core.network.packet.auth;
+using me.cg360.spookums.core.network.packet.game;
 using me.cg360.spookums.core.network.packet.game.entity;
+using me.cg360.spookums.core.network.packet.game.info;
 using me.cg360.spookums.core.network.packet.info;
 using me.cg360.spookums.core.scheduler;
 using me.cg360.spookums.core.scheduler.task;
@@ -54,6 +57,15 @@ namespace me.cg360.spookums
             EventManager.AddListener(newListen);
         }
 
+        public IEnumerator SchedulerTicker()
+        {
+            while (true)
+            {
+                yield return new WaitForSecondsRealtime(1f / 20f);
+                SchedulerBrain.RunSchedulerTick();
+            }
+        }
+
 
         private void Awake()
         {
@@ -66,18 +78,13 @@ namespace me.cg360.spookums
             MainScheduler = new Scheduler(1);
 
             ResetServerClient();
+            StartCoroutine(SchedulerTicker());
         }
 
         
         private void OnDisable()
         {
             GameThread.StopThreadChecking();
-        }
-
-
-        public void FixedUpdate()
-        {
-            SchedulerBrain.RunSchedulerTick();
         }
 
 
@@ -137,11 +144,11 @@ namespace me.cg360.spookums
                             case PacketInLoginResponse.Status.SUCCESS:
                                 string username = pLoginResponse.Username;
                                 
+                                MainMenuController.SwitchPanel("connected_mainmenu");
+                                
                                 FieldRewriter connectedMenuRewriter = MainMenuController.ElementLookup["connected_mainmenu"]
                                     .GetComponent<FieldRewriter>();
                                 connectedMenuRewriter.WriteField("title", "You're logged in as: "+username);
-                                
-                                MainMenuController.SwitchPanel("connected_mainmenu");
                                 return;
                             
                             case PacketInLoginResponse.Status.INVALID_CREDENTIALS:
@@ -189,6 +196,51 @@ namespace me.cg360.spookums
                         $"Entity | rID = {pEntityAdd.EntityRuntimeID} | type = {pEntityAdd.EntityTypeId} | position = {pEntityAdd.Position} | " +
                         $"Floor = {pEntityAdd.FloorNumber} | JSON = {pEntityAdd.PropertiesJSON} | JSON Length = {pEntityAdd.PropertiesJSON.Length}"
                     );
+                    break;
+                
+                case VanillaProtocol.PACKET_TIMER_UPDATE:
+                    PacketInGameUpdateTimer pTimerUpdate = (PacketInGameUpdateTimer)e.Packet;
+                    Debug.Log($"timer: {Mathf.Floor(pTimerUpdate.TimerTicks / 20f)}");
+                    break;
+                
+                case VanillaProtocol.PACKET_GAME_STATUS:
+                    PacketInGameStatus pGameStatus = (PacketInGameStatus)e.Packet;
+                    Debug.Log(
+                        $"Game Status | type = {pGameStatus.GetStatusType().ToString()} | gameid = {pGameStatus.GameID} | reason = {pGameStatus.Reason}"
+                    );
+
+                    MainScheduler.PrepareTask(() =>
+                    {
+                        switch (pGameStatus.GetStatusType())
+                        {
+                            case PacketInGameStatus.StatusType.QUEUE_JOINED:
+                                if (MainMenuController.CurrentPanel == "load_joiningqueue")
+                                {
+                                    MainMenuController.SwitchPanel("wait_searchqueue");
+                                }
+
+                                break;
+
+                            case PacketInGameStatus.StatusType.QUEUE_REJECTED:
+                                if (MainMenuController.CurrentPanel == "load_joiningqueue")
+                                {
+                                    MainMenuController.SwitchPanel("connected_mainmenu");
+                                }
+
+                                break;
+
+                            case PacketInGameStatus.StatusType.GAME_JOIN:
+                                if (MainMenuController.CurrentPanel == "load_joiningqueue" ||
+                                    MainMenuController.CurrentPanel == "wait_searchqueue")
+                                {
+                                    
+                                    //TODO: Start game from here
+                                }
+
+                                break;
+                        }
+                    }).Schedule();
+
                     break;
             }
         }
