@@ -25,7 +25,7 @@ namespace me.cg360.spookums.ui.menu
             }
             else
             {
-                Debug.Log("Missing text field: "+fieldID);
+                Debug.LogError("Missing text field: "+fieldID);
                 return false;
             }
         }

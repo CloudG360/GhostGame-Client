@@ -3,7 +3,10 @@ using me.cg360.spookums.core.network.packet.info;
 using me.cg360.spookums.core.network;
 using UnityEngine;
 using me.cg360.spookums.core.network.packet.auth;
+using me.cg360.spookums.core.network.packet.game;
 using me.cg360.spookums.core.network.packet.game.entity;
+using me.cg360.spookums.core.network.packet.game.info;
+using net.cg360.spookums.server.network.packet.game.entity;
 
 namespace me.cg360.spookums.core.network
 {
@@ -83,6 +86,8 @@ namespace me.cg360.spookums.core.network
         public const byte PACKET_ENTITY_ADD = 0x50; // out - Spawns an entity on the client side based on its runtime id.
         public const byte PACKET_ENTITY_REMOVE = 0x51; // out - Removes an entity from the client side based on its runtime id
         public const byte PACKET_ENTITY_MOVE = 0x52; // out - Moves an entity on the client. Big, small, whatever, done in one packet.
+        
+        public const byte PACKET_TIMER_UPDATE = 0x60;
 
 
 
@@ -94,32 +99,35 @@ namespace me.cg360.spookums.core.network
                 .R(PACKET_PROTOCOL_SUCCESS, typeof(PacketInProtocolSuccess))
                 .R(PACKET_PROTOCOL_ERROR, typeof(PacketInProtocolError))
                 .R(PACKET_PROTOCOL_BATCH, null)
-                 
+
                 .R(PACKET_SERVER_PING_REQUEST, typeof(PacketOutServerPingRequest))
                 .R(PACKET_SERVER_DETAIL, typeof(PacketInServerDetail))
                 .R(PACKET_CLIENT_DETAIL, typeof(PacketOutClientDetail))
                 .R(PACKET_SERVER_NOTICE, typeof(PacketInServerNotice))
                 .R(PACKET_DISCONNECT_REASON, typeof(PacketInOutDisconnect))
-                 
+
                 .R(PACKET_RESPONSE_WARNING, null)
                 .R(PACKET_RESPONSE_SUCCESS, null)
                 .R(PACKET_RESPONSE_ERROR, null)
                 .R(PACKET_CHAT_MESSAGE, typeof(PacketInOutChatMessage))
-                 
+
                 .R(PACKET_LOGIN, typeof(PacketOutLogin))
                 .R(PACKET_UPDATE_ACCOUNT, typeof(PacketOutUpdateAccount))
                 .R(PACKET_LOGIN_RESPONSE, typeof(PacketInLoginResponse))
-                 
+
                 .R(PACKET_GAME_JOIN_REQUEST, null)
-                .R(PACKET_GAME_SEARCH_REQUEST, null)
+                .R(PACKET_GAME_SEARCH_REQUEST, typeof(PacketOutGameQueueRequest))
                 .R(PACKET_GAME_STATUS, null)
                 //.R(PACKET_FETCH_GAME_LIST, null)
                 .R(PACKET_REQUEST_GAME_DETAIL, null)
                 .R(PACKET_GAME_DETAIL, null)
-                
+
                 .R(PACKET_ENTITY_ADD, typeof(PacketInAddEntity))
                 .R(PACKET_ENTITY_REMOVE, typeof(PacketInRemoveEntity))
-                .R(PACKET_ENTITY_MOVE, null);
+                .R(PACKET_ENTITY_MOVE, typeof(PacketInOutEntityMove))
+                
+                .R(PACKET_TIMER_UPDATE, typeof(PacketInGameUpdateTimer))
+                ;
     }
 
     }

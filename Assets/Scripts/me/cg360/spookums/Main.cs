@@ -94,7 +94,6 @@ namespace me.cg360.spookums
 
             switch (e.Packet.PacketID)
             {
-                //TODO: Check that the client isn't logged in. If it is, scream about this and self-disconnect.
                 case VanillaProtocol.PACKET_PROTOCOL_ERROR:
                     PacketInProtocolError pProtocolError = (PacketInProtocolError)e.Packet;
                     FailServerConnection("Out of date!", $"The server requires you to be on version {pProtocolError.RequiredClientVersionInfo}.");
@@ -103,7 +102,7 @@ namespace me.cg360.spookums
                 
                 case VanillaProtocol.PACKET_PROTOCOL_SUCCESS:
                     PacketInProtocolSuccess pProtocolSuccess = (PacketInProtocolSuccess)e.Packet;
-                    MainScheduler.prepareTask(() =>
+                    MainScheduler.PrepareTask(() =>
                     {
                         if (MainMenuController.enabled && MainMenuController.CurrentPanel == "load_serverconnecting")
                         {
@@ -111,20 +110,78 @@ namespace me.cg360.spookums
                                 .GetComponent<FieldRewriter>();
                             rewriter.WriteField("description", "Verified Version");
                             
+                            FieldRewriter loginRewriter = MainMenuController.ElementLookup["load_loginregister"]
+                                .GetComponent<FieldRewriter>();
+                            loginRewriter.WriteField("error_text", "");
+                            
                             MainMenuController.SwitchPanel("load_loginregister");
                         }
                     }).Schedule();
                     
                     break;
                 
+                
                 case VanillaProtocol.PACKET_LOGIN_RESPONSE:
-                    PacketInLoginResponse pLoginResponse = (PacketInLoginResponse)e.Packet;
-                    Debug.Log(
-                        $"Code: {PacketInLoginResponse.CodeToStatus(pLoginResponse.StatusCode).ToString()} | Username: {pLoginResponse.Username} | Token: {pLoginResponse.Token}"
-                    );
-                    NetworkInterface.SendDataPacket(new PacketOutServerPingRequest(), true);
+                    MainScheduler.PrepareTask(() =>
+                    {
+                        PacketInLoginResponse pLoginResponse = (PacketInLoginResponse)e.Packet;
+                        Debug.Log(
+                            $"Code: {PacketInLoginResponse.CodeToStatus(pLoginResponse.StatusCode).ToString()} | " +
+                            $"Username: {pLoginResponse.Username} | Token: {pLoginResponse.Token}"
+                        );
+
+                        string errorText = "";
+
+                        switch (PacketInLoginResponse.CodeToStatus(pLoginResponse.StatusCode))
+                        {
+                            case PacketInLoginResponse.Status.SUCCESS:
+                                string username = pLoginResponse.Username;
+                                
+                                FieldRewriter connectedMenuRewriter = MainMenuController.ElementLookup["connected_mainmenu"]
+                                    .GetComponent<FieldRewriter>();
+                                connectedMenuRewriter.WriteField("title", "You're logged in as: "+username);
+                                
+                                MainMenuController.SwitchPanel("connected_mainmenu");
+                                return;
+                            
+                            case PacketInLoginResponse.Status.INVALID_CREDENTIALS:
+                                errorText = "Invalid Username/Password";
+                                break;
+                            case PacketInLoginResponse.Status.ALREADY_LOGGED_IN:
+                                errorText = "You're already logged in on this server!";
+                                break;
+                            case PacketInLoginResponse.Status.GENERAL_LOGIN_ERROR:
+                                errorText = "Something went wrong! Try again soon. (Technical Server Error)";
+                                break;
+
+                            case PacketInLoginResponse.Status.TAKEN_USERNAME:
+                                errorText = "That username is already taken! Try another one.";
+                                break;
+                            case PacketInLoginResponse.Status.GENERAL_REGISTER_ERROR:
+                                errorText = "Unable to create an account! Try again soon.";
+                                break;
+
+                            case PacketInLoginResponse.Status.TECHNICAL_SERVER_ERROR:
+                                errorText = "Something went wrong! Try again soon. (Technical Server Error)";
+                                break;
+
+                            case PacketInLoginResponse.Status.INVALID_TOKEN:
+                                errorText = "";
+                                break;
+
+                            default:
+                                errorText = "Uh oh! Something went wrong...";
+                                break;
+                        }
+
+                        FieldRewriter rewriter = MainMenuController.ElementLookup["load_loginregister"]
+                            .GetComponent<FieldRewriter>();
+                        rewriter.WriteField("error_text", errorText);
+                        MainMenuController.SwitchPanel("load_loginregister");
+                    }).Schedule();
 
                     break;
+                
                 
                 case VanillaProtocol.PACKET_ENTITY_ADD:
                     PacketInAddEntity pEntityAdd = (PacketInAddEntity) e.Packet;
@@ -152,7 +209,7 @@ namespace me.cg360.spookums
 
         protected void FailServerConnection(string title, string desc)
         {
-            MainScheduler.prepareTask(() =>
+            MainScheduler.PrepareTask(() =>
             {
                 ResetServerClient();
                 MainMenuController.enabled = true;

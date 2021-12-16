@@ -25,6 +25,7 @@ namespace me.cg360.spookums.ui.menu.main
             ButtonRegister.onClick.AddListener(ClickedRegister);
             ButtonRegister.interactable = false;
 
+            
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }

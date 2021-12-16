@@ -39,8 +39,6 @@ namespace me.cg360.spookums.core.network.packet.game.entity
             total += 1; Body.PutUnsignedByte(FloorNumber);
             total += Body.PutUTF8String(PropertiesJSON);
 
-            
-            
             return total;
         }
 

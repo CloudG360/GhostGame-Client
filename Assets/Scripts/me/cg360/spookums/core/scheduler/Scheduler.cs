@@ -180,12 +180,12 @@ namespace me.cg360.spookums.core.scheduler.task
 
         // -- Task Registering --
 
-        public PendingEntryBuilder prepareTask(ThreadStart task) {
+        public PendingEntryBuilder PrepareTask(ThreadStart task) {
             SchedulerTask rTask = new RunnableTypeTask(task);
             return new PendingEntryBuilder(this, rTask);
         }
 
-        public PendingEntryBuilder prepareTask(SchedulerTask task) {
+        public PendingEntryBuilder PrepareTask(SchedulerTask task) {
             return new PendingEntryBuilder(this, task);
         }
         
